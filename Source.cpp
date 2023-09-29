@@ -23,8 +23,8 @@ int main()
     sf::Vector2f position1a = sf::Vector2f(0.f, 0.f); //mouse position adjusted for 1a
     sf::Vector2f position1b = sf::Vector2f(0.f, 0.f); //mouse position adjusted for 1b
     sf::CircleShape brush0(size); //brush 0
-    sf::RectangleShape brush1a(sf::Vector2f(size*2, size/2));
-    sf::RectangleShape brush1b(sf::Vector2f(size/2, size*2));
+    sf::RectangleShape brush1a(sf::Vector2f(size*2, size/2)); // part 1 of Brush 1
+    sf::RectangleShape brush1b(sf::Vector2f(size/2, size*2)); // part 2 of Brush 1
     sf::CircleShape brush2(size,3); //brush 2
     int frameC = 0; //duration of button holding for colors
     int frameS = 0; //duration of button holding for sizes
@@ -42,7 +42,7 @@ int main()
                 window.close();
         }
 
-        //Change color
+        //Set color variables to current color
         int red = hue.r;
         int green = hue.g;
         int blue = hue.b;
@@ -73,7 +73,7 @@ int main()
                 blue++;
             else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
                 blue--;
-            //cout << "current color is " << red << ", " << green << ", "<<blue;
+            //cout << "current color is " << red << ", " << green << ", "<<blue; //debug for making sure color changes
         }
 
         //Increment Size Controls
@@ -83,7 +83,7 @@ int main()
         }
         else frameS = 0;
 
-        //Change Color
+        //Change Size
         if (frameS >= 60) frameS = 0; //sets frame to loop limiting rate of size change
         if (frameS == 0) { //limits speed of size change
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
@@ -91,11 +91,11 @@ int main()
             else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
                 size--;
           
-            //cout << "size is " << size;
-        }
+            //cout << "size is " << size; //debug for making sure size changes
+        } 
 
 
-        //change brush
+        //change brush state
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1))
             state = 0;
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2))
@@ -115,7 +115,7 @@ int main()
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num9))
             state = 8;
            
-        //catch limits
+        //size bounding limits
         if (size > sizeMax) size = sizeMax; //set maximum size to sizeMax
         if (size < 1) size = 1; //set minimum size to 1
 
@@ -129,26 +129,28 @@ int main()
 
         //Set Brushes
         hue = sf::Color(red, green, blue);
-        localPosition = sf::Vector2f(sf::Mouse::getPosition(window).x-size, sf::Mouse::getPosition(window).y-size);
+        localPosition = sf::Vector2f(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
         if (state == 0) {
-            brush0.setPosition(localPosition);
             brush0.setRadius(size);
+            brush0.setOrigin(size,size);
+            brush0.setPosition(localPosition);
             brush0.setFillColor(hue);
         }
         else if (state == 1) {
-            position1a = sf::Vector2f(sf::Mouse::getPosition(window).x - size, sf::Mouse::getPosition(window).y- size/4);
-            position1b = sf::Vector2f(sf::Mouse::getPosition(window).x - size/4, sf::Mouse::getPosition(window).y - size);
-            brush1a.setPosition(position1a);
-            brush1b.setPosition(position1b);
-            brush1a.setSize(sf::Vector2f(size*2, size/2));
-            brush1b.setSize(sf::Vector2f(size/2, size*2));
+            brush1a.setSize(sf::Vector2f(size * 2, size / 2));
+            brush1b.setSize(sf::Vector2f(size / 2, size * 2));
+            brush1a.setOrigin(size, size/4);
+            brush1b.setOrigin(size/4, size);
+            brush1a.setPosition(localPosition);
+            brush1b.setPosition(localPosition);
             brush1a.setFillColor(hue);
             brush1b.setFillColor(hue);
         }
-        else {
+        else { //this way states 2-8 all use brush 2
             brush2 = sf::CircleShape (size, state+1);
+            brush0.setOrigin(size, size);
             brush2.setPosition(localPosition);
-            brush2.setFillColor(sf::Color(hue.r,hue.g,hue.b, 100));
+            brush2.setFillColor(hue);
         }
 
         // clear the window with white color
